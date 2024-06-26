@@ -13,7 +13,12 @@ import org.springframework.stereotype.Service;
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
 import com.techacademy.repository.EmployeeRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 public class EmployeeService {
@@ -51,6 +56,42 @@ public class EmployeeService {
         employeeRepository.save(employee);
         return ErrorKinds.SUCCESS;
     }
+
+
+
+
+
+
+    //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
+    // 従業員更新
+    @Transactional
+    public void update(Employee updatedEmployee) {
+        Employee existingEmployee = employeeRepository.findById(updatedEmployee.getCode()).orElse(null);
+
+        //もしもDBから従業員が見つかったなら....
+        if (existingEmployee != null) {
+
+        	//existingEmployee の名前を、フォームから送信された新しい名前で更新します。
+            existingEmployee.setName(updatedEmployee.getName());
+
+            //existingEmployee の権限（ロール）を、フォームから送信された新しい権限で更新します。
+            existingEmployee.setRole(updatedEmployee.getRole());
+
+            //更新が完了した existingEmployee を、employeeRepository を通じてデータベースに保存します。
+            employeeRepository.save(existingEmployee);
+
+         //DBから従業員が見つからなかったら....
+        } else {
+
+            throw new EntityNotFoundException("Employee with code " + updatedEmployee.getCode() + " not found");
+        }
+    }
+    //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
+
+
+
+
+
 
     // 従業員削除
     @Transactional

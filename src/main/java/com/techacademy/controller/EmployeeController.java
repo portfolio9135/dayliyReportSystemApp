@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.techacademy.constants.ErrorKinds;
 import com.techacademy.constants.ErrorMessage;
@@ -97,6 +98,43 @@ public class EmployeeController {
 
         return "redirect:/employees";
     }
+
+
+
+
+
+ //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
+ // 従業員登録情報の更新画面
+    @GetMapping(value = "/update")
+    public String showUpdateForm(@RequestParam("id") String id, Model model) {
+        Employee employee = employeeService.findByCode(id);
+        model.addAttribute("employee", employee);
+        return "employees/update";
+    }
+
+    // 従業員更新処理
+    @PostMapping(value = "/update")
+    public String update(@Validated Employee employee, BindingResult res, Model model) {
+        if (res.hasErrors()) {
+            model.addAttribute("employee", employee);
+            return "employees/update"; // エラーハンドリング時のビュー
+        }
+
+        try {
+            employeeService.update(employee);
+        } catch (Exception e) {
+            model.addAttribute("error", "更新に失敗しました。");
+            model.addAttribute("employee", employee);
+            return "employees/update"; // エラーハンドリング時のビュー
+        }
+
+        return "redirect:/employees"; // 成功時のリダイレクト
+    }
+    //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
+
+
+
+
 
     // 従業員削除処理
     @PostMapping(value = "/{code}/delete")
