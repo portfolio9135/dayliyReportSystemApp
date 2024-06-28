@@ -3,6 +3,7 @@ package com.techacademy.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -111,8 +112,7 @@ public class EmployeeController {
         return "employees/update";
     }
 
-
-    // 従業員更新処理
+ // 従業員更新処理
     @PostMapping(value = "/update")
     public String update(@Validated Employee employee, BindingResult res, Model model) {
         if (res.hasErrors()) {
@@ -121,6 +121,20 @@ public class EmployeeController {
         }
 
         try {
+            Employee existingEmployee = employeeService.findByCode(employee.getCode());
+
+            // パスワードが空かどうかをチェック
+            if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
+                // 空の場合は既存のパスワードを設定
+                System.out.println("既存のパスワードを使用する: " + existingEmployee.getPassword());
+                employee.setPassword(existingEmployee.getPassword());
+            } else {
+                // 空でない場合は暗号化して設定
+                String encryptedPassword = encryptPassword(employee.getPassword());
+                System.out.println("新しいパスワードを暗号化して設定: " + encryptedPassword);
+                employee.setPassword(encryptedPassword);
+            }
+
             employeeService.update(employee);
         } catch (Exception e) {
             model.addAttribute("error", "更新に失敗しました。");
@@ -130,6 +144,18 @@ public class EmployeeController {
 
         return "redirect:/employees"; // 成功時のリダイレクト
     }
+
+
+    private String encryptPassword(String password) {
+        // 暗号化の処理（例：BCryptを使用）
+        return new BCryptPasswordEncoder().encode(password);
+    }
+
+
+
+
+
+
     //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
 
 

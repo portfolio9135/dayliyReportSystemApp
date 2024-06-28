@@ -14,6 +14,7 @@ import com.techacademy.constants.ErrorKinds;
 import com.techacademy.entity.Employee;
 import com.techacademy.repository.EmployeeRepository;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -63,26 +64,25 @@ public class EmployeeService {
 
 
     //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
-    // 従業員更新
+ // 従業員更新
     @Transactional
     public void update(Employee updatedEmployee) {
         Employee existingEmployee = employeeRepository.findById(updatedEmployee.getCode()).orElse(null);
 
-        //もしもDBから従業員が見つかったなら....
         if (existingEmployee != null) {
-
-        	//existingEmployee の名前を、フォームから送信された新しい名前で更新します。
+            // 名前と権限の更新
             existingEmployee.setName(updatedEmployee.getName());
-
-            //existingEmployee の権限（ロール）を、フォームから送信された新しい権限で更新します。
             existingEmployee.setRole(updatedEmployee.getRole());
 
-            //更新が完了した existingEmployee を、employeeRepository を通じてデータベースに保存します。
+            // パスワードの更新処理を追加
+            if (!StringUtils.isEmpty(updatedEmployee.getPassword())) {
+                String encryptedPassword = passwordEncoder.encode(updatedEmployee.getPassword());
+                existingEmployee.setPassword(encryptedPassword);
+            }
+
+            // データベースに保存
             employeeRepository.save(existingEmployee);
-
-         //DBから従業員が見つからなかったら....
         } else {
-
             throw new EntityNotFoundException("Employee with code " + updatedEmployee.getCode() + " not found");
         }
     }

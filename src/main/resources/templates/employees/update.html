@@ -14,23 +14,31 @@
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">従業員 更新</h1>
             </div>
-            <div class="col-12 col-xxl-6">
 
+            <div class="col-12 col-xxl-6">
                 <div class="col-xl-12">
                     <div class="card">
-                        <div class="card-body">
+                        <div class="card-body p-0">
+							<p class="bg-light border-bottom border-secondary p-2 mb-0">
+							  パスワードは変更する場合のみ入力してください
+							</p>
                             <!-- 更新フォームに修正 -->
                             <form th:action="@{/employees/update}" th:object="${employee}" th:method="post">
-                                <div class="wizard wizard-success mb-4">
+                                <div class="wizard wizard-success mb-4 p-3">
                                     <div class="mb-3">
                                         <label class="form-label" for="code">社員番号</label>
                                         <p class="mb-1"></p>
                                         <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{code}" th:errorclass="err" id="code">
+											<!-- 表示用 -->
+											<div th:text="${employee.code}"></div>
+											<!-- フォーム送信用 -->
+											<input type="hidden" th:field="*{code}">
+
                                             <span th:errors="*{code}" class="text-danger"></span>
                                             <span th:if="${codeError} neq null" th:text="${codeError}" class="text-danger"></span>
                                         </div>
                                     </div>
+
                                     <div class="mb-3">
                                         <label class="form-label" for="name">氏名</label>
                                         <p class="mb-1"></p>
@@ -40,7 +48,6 @@
                                         </div>
                                     </div>
 
-
                                     <div class="mb-3">
                                         <label class="form-label" for="password">パスワード</label>
                                         <p class="mb-1"></p>
@@ -49,7 +56,6 @@
                                             <span th:if="${passwordError} neq null" th:text="${passwordError}" class="text-danger"></span>
                                         </div>
                                     </div>
-
 
                                     <div class="mb-3">
                                         <label class="form-label" for="role">権限</label>
