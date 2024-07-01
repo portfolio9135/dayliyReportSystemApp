@@ -35,7 +35,6 @@ public class EmployeeController {
     // 従業員一覧画面
     @GetMapping
     public String list(Model model) {
-
         model.addAttribute("listSize", employeeService.findAll().size());
         model.addAttribute("employeeList", employeeService.findAll());
 
@@ -103,7 +102,27 @@ public class EmployeeController {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
  //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
+
  // 従業員登録情報の更新画面
     @GetMapping(value = "/update/{code}")
     public String showUpdateForm(@PathVariable String code, Model model) {
@@ -117,46 +136,64 @@ public class EmployeeController {
     public String update(@Validated Employee employee, BindingResult res, Model model) {
         if (res.hasErrors()) {
             model.addAttribute("employee", employee);
-            return "employees/update"; // エラーハンドリング時のビュー
+            return "employees/update";
         }
 
         try {
+            // パスワードチェック
+            ErrorKinds result = employeeService.employeePasswordCheckForUpdate(employee.getPassword());
+            if (result != ErrorKinds.CHECK_OK) {
+                model.addAttribute("passwordError", ErrorMessage.getErrorValue(result));
+                model.addAttribute("employee", employee);
+                return "employees/update";
+            }
+
             Employee existingEmployee = employeeService.findByCode(employee.getCode());
 
-            // パスワードが空かどうかをチェック
             if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
-                // 空の場合は既存のパスワードを設定
-                System.out.println("既存のパスワードを使用する: " + existingEmployee.getPassword());
                 employee.setPassword(existingEmployee.getPassword());
-            } else {
-                // 空でない場合は暗号化して設定
-                String encryptedPassword = encryptPassword(employee.getPassword());
-                System.out.println("新しいパスワードを暗号化して設定: " + encryptedPassword);
-                employee.setPassword(encryptedPassword);
             }
 
             employeeService.update(employee);
+        } catch (IllegalArgumentException e) {
+            model.addAttribute("passwordError", e.getMessage());
+            model.addAttribute("employee", employee);
+            return "employees/update";
         } catch (Exception e) {
             model.addAttribute("error", "更新に失敗しました。");
             model.addAttribute("employee", employee);
-            return "employees/update"; // エラーハンドリング時のビュー
+            return "employees/update";
         }
 
-        return "redirect:/employees"; // 成功時のリダイレクト
+        return "redirect:/employees";
     }
 
 
+ // 暗号化の処理（BCryptを使用）
     private String encryptPassword(String password) {
-        // 暗号化の処理（例：BCryptを使用）
         return new BCryptPasswordEncoder().encode(password);
     }
 
-
-
-
-
-
     //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

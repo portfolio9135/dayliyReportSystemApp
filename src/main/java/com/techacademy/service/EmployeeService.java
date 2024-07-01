@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.techacademy.constants.ErrorKinds;
+import com.techacademy.constants.ErrorMessage;
 import com.techacademy.entity.Employee;
 import com.techacademy.repository.EmployeeRepository;
 
@@ -63,6 +64,16 @@ public class EmployeeService {
 
 
 
+
+
+
+
+
+
+
+
+
+
     //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
  // 従業員更新
     @Transactional
@@ -76,6 +87,12 @@ public class EmployeeService {
 
             // パスワードの更新処理を追加
             if (!StringUtils.isEmpty(updatedEmployee.getPassword())) {
+                // パスワードバリデーションチェック
+                ErrorKinds result = employeePasswordCheckForUpdate(updatedEmployee.getPassword());
+                if (result != ErrorKinds.CHECK_OK) {
+                    throw new IllegalArgumentException(ErrorMessage.getErrorValue(result));
+                }
+
                 String encryptedPassword = passwordEncoder.encode(updatedEmployee.getPassword());
                 existingEmployee.setPassword(encryptedPassword);
             }
@@ -86,7 +103,35 @@ public class EmployeeService {
             throw new EntityNotFoundException("Employee with code " + updatedEmployee.getCode() + " not found");
         }
     }
+
+    // 従業員パスワードチェック（更新時）
+    public ErrorKinds employeePasswordCheckForUpdate(String password) {
+        // パスワードの長さチェック
+        if (password.length() < 8 || password.length() > 16) {
+            return ErrorKinds.RANGECHECK_ERROR;
+        }
+
+        // 半角英数字チェック
+        Pattern pattern = Pattern.compile("^[A-Za-z0-9]+$");
+        Matcher matcher = pattern.matcher(password);
+        if (!matcher.matches()) {
+            return ErrorKinds.HALFSIZE_ERROR;
+        }
+
+        return ErrorKinds.CHECK_OK;
+    }
+
     //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
+
+
+
+
+
+
+
+
+
+
 
 
 
