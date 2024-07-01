@@ -21,12 +21,19 @@ import com.techacademy.entity.Employee;
 import com.techacademy.service.EmployeeService;
 import com.techacademy.service.UserDetail;
 
+
+
+
+//これでこのクラスが Spring MVC のコントローラーやと示してる。
+//また、/employees パスにマッピングされるURLのリクエストを処理する。
 @Controller
 @RequestMapping("employees")
 public class EmployeeController {
 
+	//これで EmployeeService のインスタンスを保持する変数を定義
     private final EmployeeService employeeService;
 
+    //コンストラクタで EmployeeService を注入してる。Spring が自動的にインスタンスを作って渡してくれる。
     @Autowired
     public EmployeeController(EmployeeService employeeService) {
         this.employeeService = employeeService;
@@ -141,17 +148,21 @@ public class EmployeeController {
 
         try {
             // パスワードチェック
-            ErrorKinds result = employeeService.employeePasswordCheckForUpdate(employee.getPassword());
-            if (result != ErrorKinds.CHECK_OK) {
-                model.addAttribute("passwordError", ErrorMessage.getErrorValue(result));
-                model.addAttribute("employee", employee);
-                return "employees/update";
+            if (employee.getPassword() != null && !employee.getPassword().isEmpty()) {
+                ErrorKinds result = employeeService.employeePasswordCheckForUpdate(employee.getPassword());
+                if (result != ErrorKinds.CHECK_OK) {
+                    model.addAttribute("passwordError", ErrorMessage.getErrorValue(result));
+                    model.addAttribute("employee", employee);
+                    return "employees/update";
+                }
             }
 
             Employee existingEmployee = employeeService.findByCode(employee.getCode());
 
             if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
                 employee.setPassword(existingEmployee.getPassword());
+            } else {
+                employee.setPassword(employeeService.encryptPassword(employee.getPassword()));
             }
 
             employeeService.update(employee);

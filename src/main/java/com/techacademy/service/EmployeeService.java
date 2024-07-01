@@ -87,12 +87,6 @@ public class EmployeeService {
 
             // パスワードの更新処理を追加
             if (!StringUtils.isEmpty(updatedEmployee.getPassword())) {
-                // パスワードバリデーションチェック
-                ErrorKinds result = employeePasswordCheckForUpdate(updatedEmployee.getPassword());
-                if (result != ErrorKinds.CHECK_OK) {
-                    throw new IllegalArgumentException(ErrorMessage.getErrorValue(result));
-                }
-
                 String encryptedPassword = passwordEncoder.encode(updatedEmployee.getPassword());
                 existingEmployee.setPassword(encryptedPassword);
             }
@@ -104,8 +98,14 @@ public class EmployeeService {
         }
     }
 
-    // 従業員パスワードチェック（更新時）
+
+ // 従業員パスワードチェック（更新時）
     public ErrorKinds employeePasswordCheckForUpdate(String password) {
+        // パスワードが空欄の場合はチェックをスキップ
+        if (password == null || password.isEmpty()) {
+            return ErrorKinds.CHECK_OK;
+        }
+
         // パスワードの長さチェック
         if (password.length() < 8 || password.length() > 16) {
             return ErrorKinds.RANGECHECK_ERROR;
@@ -119,6 +119,11 @@ public class EmployeeService {
         }
 
         return ErrorKinds.CHECK_OK;
+    }
+
+    // 従業員パスワードの暗号化
+    public String encryptPassword(String password) {
+        return passwordEncoder.encode(password);
     }
 
     //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
