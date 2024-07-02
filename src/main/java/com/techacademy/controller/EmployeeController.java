@@ -3,7 +3,6 @@ package com.techacademy.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,9 +22,8 @@ import com.techacademy.service.UserDetail;
 
 
 
+//***************************************************************************************************************************************
 
-//これでこのクラスが Spring MVC のコントローラーやと示してる。
-//また、/employees パスにマッピングされるURLのリクエストを処理する。
 @Controller
 @RequestMapping("employees")
 public class EmployeeController {
@@ -39,7 +37,7 @@ public class EmployeeController {
         this.employeeService = employeeService;
     }
 
-    // 従業員一覧画面
+    // 従業員一覧画面 モデルに全従業員リストとサイズを追加してる
     @GetMapping
     public String list(Model model) {
         model.addAttribute("listSize", employeeService.findAll().size());
@@ -63,31 +61,24 @@ public class EmployeeController {
         return "employees/new";
     }
 
-    // 従業員新規登録処理
+    // 従業員新規登録処理 エラーチェックして登録したりしてる
     @PostMapping(value = "/add")
     public String add(@Validated Employee employee, BindingResult res, Model model) {
 
-        // パスワード空白チェック
-        /*
-         * エンティティ側の入力チェックでも実装は行えるが、更新の方でパスワードが空白でもチェックエラーを出さずに
-         * 更新出来る仕様となっているため上記を考慮した場合に別でエラーメッセージを出す方法が簡単だと判断
-         */
+    	// パスワードが空白やったらエラーメッセージを表示して登録画面を再表示する
         if ("".equals(employee.getPassword())) {
-            // パスワードが空白だった場合
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.BLANK_ERROR),
-                    ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
+            ErrorMessage.getErrorValue(ErrorKinds.BLANK_ERROR));
 
             return create(employee);
-
         }
 
-        // 入力チェック
+        // 入力チェックエラーがあれば登録画面を再表示する
         if (res.hasErrors()) {
             return create(employee);
         }
 
-        // 論理削除を行った従業員番号を指定すると例外となるためtry~catchで対応
-        // (findByIdでは削除フラグがTRUEのデータが取得出来ないため)
+        // 従業員情報を保存しに行くで。エラーがあれば再度登録画面を表示する
         try {
             ErrorKinds result = employeeService.save(employee);
 
@@ -96,15 +87,18 @@ public class EmployeeController {
                 return create(employee);
             }
 
+        // 重複エラーが発生したらエラーメッセージを表示して登録画面を再表示する
         } catch (DataIntegrityViolationException e) {
             model.addAttribute(ErrorMessage.getErrorName(ErrorKinds.DUPLICATE_EXCEPTION_ERROR),
                     ErrorMessage.getErrorValue(ErrorKinds.DUPLICATE_EXCEPTION_ERROR));
             return create(employee);
         }
 
+        // 登録成功したら従業員一覧画面にリダイレクトする
         return "redirect:/employees";
     }
 
+ //***************************************************************************************************************************************
 
 
 
@@ -128,17 +122,24 @@ public class EmployeeController {
 
 
 
- //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
+//***************************************************************************************************************************************
+//ここから追記__【課題① 従業員更新画面の実装】
+//***************************************************************************************************************************************
 
  // 従業員登録情報の更新画面
     @GetMapping(value = "/update/{code}")
     public String showUpdateForm(@PathVariable String code, Model model) {
+
+        // 指定した従業員コードの情報を取得して更新画面に表示する
         Employee employee = employeeService.findByCode(code);
+
+        // モデルに従業員情報を追加して更新画面に渡す
         model.addAttribute("employee", employee);
+
         return "employees/update";
     }
 
- // 従業員更新処理
+ // 従業員更新処理 エラーチェックしてから従業員情報を更新する
     @PostMapping(value = "/update")
     public String update(@Validated Employee employee, BindingResult res, Model model) {
         if (res.hasErrors()) {
@@ -146,25 +147,26 @@ public class EmployeeController {
             return "employees/update";
         }
 
+        // パスワードが指定されていたらチェックしてエラーがあればエラーメッセージを表示する
         try {
-            // パスワードチェック
             if (employee.getPassword() != null && !employee.getPassword().isEmpty()) {
                 ErrorKinds result = employeeService.employeePasswordCheckForUpdate(employee.getPassword());
+
                 if (result != ErrorKinds.CHECK_OK) {
                     model.addAttribute("passwordError", ErrorMessage.getErrorValue(result));
                     model.addAttribute("employee", employee);
                     return "employees/update";
                 }
-            }
 
-            Employee existingEmployee = employeeService.findByCode(employee.getCode());
-
-            if (employee.getPassword() == null || employee.getPassword().isEmpty()) {
-                employee.setPassword(existingEmployee.getPassword());
-            } else {
+                // 新しいパスワードを暗号化してセットする
                 employee.setPassword(employeeService.encryptPassword(employee.getPassword()));
+            } else {
+                // パスワードが空欄の場合、現在のパスワードを保持するようにする
+                Employee existingEmployee = employeeService.findByCode(employee.getCode());
+                employee.setPassword(existingEmployee.getPassword());
             }
 
+            // 従業員情報を更新する
             employeeService.update(employee);
         } catch (IllegalArgumentException e) {
             model.addAttribute("passwordError", e.getMessage());
@@ -176,16 +178,13 @@ public class EmployeeController {
             return "employees/update";
         }
 
+        // 更新成功したら従業員一覧画面にリダイレクトする
         return "redirect:/employees";
     }
 
-
- // 暗号化の処理（BCryptを使用）
-    private String encryptPassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
-    }
-
-    //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
+//***************************************************************************************************************************************
+//ここまで追記__【課題① 従業員更新画面の実装】
+//***************************************************************************************************************************************
 
 
 
@@ -209,8 +208,10 @@ public class EmployeeController {
 
 
 
+//***************************************************************************************************************************************
+// 従業員削除処理
+//***************************************************************************************************************************************
 
-    // 従業員削除処理
     @PostMapping(value = "/{code}/delete")
     public String delete(@PathVariable String code, @AuthenticationPrincipal UserDetail userDetail, Model model) {
 
@@ -226,3 +227,5 @@ public class EmployeeController {
     }
 
 }
+
+//***************************************************************************************************************************************

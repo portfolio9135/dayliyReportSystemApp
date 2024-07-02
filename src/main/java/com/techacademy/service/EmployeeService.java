@@ -22,6 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
+//***************************************************************************************************************************************
+
 @Service
 public class EmployeeService {
 
@@ -37,7 +39,6 @@ public class EmployeeService {
     // 従業員保存
     @Transactional
     public ErrorKinds save(Employee employee) {
-
         // パスワードチェック
         ErrorKinds result = employeePasswordCheck(employee);
         if (ErrorKinds.CHECK_OK != result) {
@@ -59,6 +60,7 @@ public class EmployeeService {
         return ErrorKinds.SUCCESS;
     }
 
+ //***************************************************************************************************************************************
 
 
 
@@ -68,56 +70,59 @@ public class EmployeeService {
 
 
 
+  //***************************************************************************************************************************************
+  //ここまで追記__【課題① 従業員更新画面の実装】
+  //***************************************************************************************************************************************
 
-
-
-
-
-
-    //ここから追記__【課題① 従業員更新画面の実装】********************************************************************************
  // 従業員更新
     @Transactional
     public void update(Employee updatedEmployee) {
+        // まず、更新対象の従業員をデータベースから取得
         Employee existingEmployee = employeeRepository.findById(updatedEmployee.getCode()).orElse(null);
 
+        // もしデータベースに従業員の情報があったら、以下の処理をする
         if (existingEmployee != null) {
-            // 名前と権限の更新
+            // 更新された名前を既存の従業員情報にセットする
             existingEmployee.setName(updatedEmployee.getName());
+
+            // 更新された権限を既存の従業員情報にセットする
             existingEmployee.setRole(updatedEmployee.getRole());
 
-            // パスワードの更新処理を追加
-            if (!StringUtils.isEmpty(updatedEmployee.getPassword())) {
-                String encryptedPassword = passwordEncoder.encode(updatedEmployee.getPassword());
-                existingEmployee.setPassword(encryptedPassword);
-            }
+            // パスワードはすでに暗号化されているものをセットする
+            existingEmployee.setPassword(updatedEmployee.getPassword());
 
-            // データベースに保存
+            // 更新日時を現在の日時に設定する
+            existingEmployee.setUpdatedAt(LocalDateTime.now());
+
+            // 最後に、データベースに更新された従業員情報を保存する
             employeeRepository.save(existingEmployee);
         } else {
+            // もしデータベースに該当する従業員が見つからなかったら、エラーを投げる
             throw new EntityNotFoundException("Employee with code " + updatedEmployee.getCode() + " not found");
         }
     }
 
 
- // 従業員パスワードチェック（更新時）
+    // 更新時の従業員パスワードチェック
     public ErrorKinds employeePasswordCheckForUpdate(String password) {
-        // パスワードが空欄の場合はチェックをスキップ
+        // もしパスワードが空欄やnullだったら、チェックOKを返す
         if (password == null || password.isEmpty()) {
             return ErrorKinds.CHECK_OK;
         }
 
-        // パスワードの長さチェック
+        // パスワードの長さが8文字未満または16文字を超えていたら、桁数チェックエラーを返す
         if (password.length() < 8 || password.length() > 16) {
             return ErrorKinds.RANGECHECK_ERROR;
         }
 
-        // 半角英数字チェック
+        // パスワードが半角英数字でなかったら、半角英数字チェックエラーを返す
         Pattern pattern = Pattern.compile("^[A-Za-z0-9]+$");
         Matcher matcher = pattern.matcher(password);
         if (!matcher.matches()) {
             return ErrorKinds.HALFSIZE_ERROR;
         }
 
+        // 問題なければ、チェックOKを返す
         return ErrorKinds.CHECK_OK;
     }
 
@@ -126,7 +131,9 @@ public class EmployeeService {
         return passwordEncoder.encode(password);
     }
 
-    //ここまで追記__【課題① 従業員更新画面の実装】********************************************************************************
+  //***************************************************************************************************************************************
+  //ここまで追記__【課題① 従業員更新画面の実装】
+  //***************************************************************************************************************************************
 
 
 
@@ -140,13 +147,11 @@ public class EmployeeService {
 
 
 
-
-
+  //***************************************************************************************************************************************
 
     // 従業員削除
     @Transactional
     public ErrorKinds delete(String code, UserDetail userDetail) {
-
         // 自分を削除しようとした場合はエラーメッセージを表示
         if (code.equals(userDetail.getEmployee().getCode())) {
             return ErrorKinds.LOGINCHECK_ERROR;
@@ -175,16 +180,13 @@ public class EmployeeService {
 
     // 従業員パスワードチェック
     private ErrorKinds employeePasswordCheck(Employee employee) {
-
         // 従業員パスワードの半角英数字チェック処理
         if (isHalfSizeCheckError(employee)) {
-
             return ErrorKinds.HALFSIZE_ERROR;
         }
 
         // 従業員パスワードの8文字～16文字チェック処理
         if (isOutOfRangePassword(employee)) {
-
             return ErrorKinds.RANGECHECK_ERROR;
         }
 
@@ -195,7 +197,6 @@ public class EmployeeService {
 
     // 従業員パスワードの半角英数字チェック処理
     private boolean isHalfSizeCheckError(Employee employee) {
-
         // 半角英数字チェック
         Pattern pattern = Pattern.compile("^[A-Za-z0-9]+$");
         Matcher matcher = pattern.matcher(employee.getPassword());
@@ -204,10 +205,10 @@ public class EmployeeService {
 
     // 従業員パスワードの8文字～16文字チェック処理
     public boolean isOutOfRangePassword(Employee employee) {
-
         // 桁数チェック
         int passwordLength = employee.getPassword().length();
         return passwordLength < 8 || 16 < passwordLength;
     }
-
 }
+
+//***************************************************************************************************************************************
