@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.service.EmployeeService;
 import com.techacademy.service.ReportService;
@@ -20,6 +21,9 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+
+    @Autowired
+    private EmployeeService employeeService;  // ここで EmployeeService を注入
 
 //************************************************************************************************************************************************************
 //【一覧画面】
@@ -48,10 +52,15 @@ public class ReportController {
 // 【日報新規登録画面】
 
     @GetMapping("/add")
-    public String create(Model model) {
+    public String create(Model model, Principal principal) {
         model.addAttribute("report", new Report());
+        // ログインユーザー名を取得してモデルに追加
+        String username = principal.getName();
+        Employee loggedInUser = employeeService.getEmployeeByCode(username);
+        model.addAttribute("loggedInUserName", loggedInUser.getName());
         return "reports/new";
     }
+
 
 //************************************************************************************************************************************************************
 
