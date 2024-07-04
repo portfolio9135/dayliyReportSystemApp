@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.techacademy.entity.Employee;
@@ -60,6 +61,22 @@ public class ReportController {
         model.addAttribute("loggedInUserName", loggedInUser.getName());
         return "reports/new";
     }
+
+    @PostMapping("/add")
+    public String create(@ModelAttribute Report report, Principal principal) {
+        // ログインしているユーザーの社員番号を取得
+        String employeeCode = principal.getName();
+
+        // 社員番号を日報にセット
+        report.setEmployeeCode(employeeCode);
+
+        // 日報を登録
+        reportService.saveReport(report);
+
+        // 一覧画面にリダイレクト
+        return "redirect:/reports";
+    }
+
 
 
 //************************************************************************************************************************************************************

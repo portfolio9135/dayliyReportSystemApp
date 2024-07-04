@@ -2,8 +2,10 @@ package com.techacademy.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 
 import org.hibernate.annotations.SQLRestriction;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
 
 import jakarta.persistence.Column;
@@ -52,10 +54,12 @@ public class Report {
     private boolean deleteFlg;
 
     // 登録日時
-    @Column(nullable = false)
+    @Column(nullable = false, updatable = false) // 更新不可に設定
+    @CreationTimestamp
     private LocalDateTime createdAt;
 
     // 更新日時
-    @Column(nullable = false)
+    @Column(nullable = false) // null許容でない設定
+    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }

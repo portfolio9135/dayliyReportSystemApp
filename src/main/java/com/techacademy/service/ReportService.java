@@ -11,6 +11,7 @@ import com.techacademy.repository.ReportRepository;
 import com.techacademy.repository.EmployeeRepository;
 
 //************************************************************************************************************************************************************
+//【基本設定】
 
 @Service
 public class ReportService {
@@ -22,7 +23,7 @@ public class ReportService {
     private EmployeeRepository employeeRepository;
 
 //************************************************************************************************************************************************************
-//【一覧画面に関係するメソッド】
+//【一覧画面に関するメソッド】
 
     public boolean isAdmin(String username) {
         Employee employee = employeeRepository.findByCode(username);
@@ -42,9 +43,13 @@ public class ReportService {
     }
 
 //************************************************************************************************************************************************************
+//【新規登録に関するメソッド】
 
+    public void saveReport(Report report) {
+        reportRepository.save(report);
+    }
 
-
+//************************************************************************************************************************************************************
 
 
 
