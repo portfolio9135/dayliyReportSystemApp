@@ -10,6 +10,8 @@ import com.techacademy.entity.Report;
 import com.techacademy.repository.ReportRepository;
 import com.techacademy.repository.EmployeeRepository;
 
+//************************************************************************************************************************************************************
+
 @Service
 public class ReportService {
 
@@ -18,6 +20,9 @@ public class ReportService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+//************************************************************************************************************************************************************
+//【一覧画面に関係するメソッド】
 
     public boolean isAdmin(String username) {
         Employee employee = employeeRepository.findByCode(username);
@@ -35,4 +40,12 @@ public class ReportService {
     public int getReportListSize() {
         return reportRepository.findAll().size();
     }
+
+//************************************************************************************************************************************************************
+
+
+
+
+
+
 }
