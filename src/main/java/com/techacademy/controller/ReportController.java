@@ -21,9 +21,6 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
-    @Autowired
-    private EmployeeService employeeService;
-
 //************************************************************************************************************************************************************
 //【一覧画面】
 
