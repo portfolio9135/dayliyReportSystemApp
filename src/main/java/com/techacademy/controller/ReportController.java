@@ -123,9 +123,27 @@ public class ReportController {
         }
     }
 
+//************************************************************************************************************************************************************
+// 【日報更新画面】
 
+    @GetMapping("/update/{id}")
+    public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
+        Report report = reportService.getReport(id);
+        model.addAttribute("report", report);
+        return "reports/update";
+    }
 
+    @PostMapping("/update")
+    public String updateReport(@Validated @ModelAttribute Report report, BindingResult bindingResult, Model model) {
+        if (bindingResult.hasErrors()) {
+            return "reports/update";
+        }
+        reportService.saveReport(report);
+        return "redirect:/reports";
+    }
 
 //************************************************************************************************************************************************************
 
 }
+
+
