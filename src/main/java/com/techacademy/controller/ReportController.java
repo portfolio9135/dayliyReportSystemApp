@@ -8,6 +8,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -95,6 +96,25 @@ public class ReportController {
         System.out.println("デバッグ: リダイレクトします");
         return "redirect:/reports";
     }
+
+//************************************************************************************************************************************************************
+// 【日報詳細画面】
+
+    @GetMapping("/detail/{id}")
+    public String detail(@PathVariable Integer id, Model model) {
+        Report report = reportService.getReportById(id);
+        if (report == null) {
+            // エラーメッセージを表示するための処理
+            model.addAttribute("error", "指定された日報が存在しません");
+            return "error";
+        }
+        model.addAttribute("report", report);
+        return "reports/detail";
+    }
+
+
+
+
 
 //************************************************************************************************************************************************************
 

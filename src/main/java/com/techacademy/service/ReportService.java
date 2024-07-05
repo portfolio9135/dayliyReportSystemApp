@@ -29,7 +29,7 @@ public class ReportService {
     }
 
   //************************************************************************************************************************************************************
-  //【一覧表示に関するメソッド】
+  //【一覧表示画面に関するメソッド】
 
     public List<Report> getAllReports() {
         return reportRepository.findAllByOrderByReportDateDesc();
@@ -44,7 +44,7 @@ public class ReportService {
     }
 
   //************************************************************************************************************************************************************
-  //【新規登録に関するメソッド】
+  //【新規登録画面に関するメソッド】
 
     public void saveReport(Report report) {
         System.out.println("デバッグ: 日報をデータベースに保存します");
@@ -55,4 +55,15 @@ public class ReportService {
         List<Report> reports = reportRepository.findByEmployeeCodeAndReportDate(employeeCode, reportDate);
         return !reports.isEmpty();
     }
+
+//************************************************************************************************************************************************************
+//【詳細画面に関するメソッド】
+
+    public Report getReportById(Integer id) {
+        return reportRepository.findById(id).orElse(null);
+    }
+
+//************************************************************************************************************************************************************
+
+
 }

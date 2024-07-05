@@ -11,6 +11,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -42,13 +44,10 @@ public class Report {
     // 内容
     @Column(columnDefinition = "LONGTEXT", nullable = false)
     @NotEmpty(message = "値を入力してください")
-    @Length(max = 600, message = "内容は600文字以下で入力してください")
     private String content;
 
     // 社員番号
-    @Column(length = 10, nullable = false)
-    @NotEmpty
-    @Length(max = 10)
+    @Column(name = "employee_code", length = 10, nullable = false)
     private String employeeCode;
 
     // 削除フラグ(論理削除を行うため)
@@ -64,4 +63,9 @@ public class Report {
     @Column(nullable = false) // null許容でない設定
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
+    // Employee リレーション
+    @ManyToOne
+    @JoinColumn(name = "employee_code", referencedColumnName = "code", insertable = false, updatable = false)
+    private Employee employee;
 }
