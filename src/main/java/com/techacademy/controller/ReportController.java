@@ -1,6 +1,8 @@
 package com.techacademy.controller;
 
 import java.security.Principal;
+
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -124,8 +126,7 @@ public class ReportController {
     }
 
 //************************************************************************************************************************************************************
-// 【日報更新画面】
-
+ // 【日報更新画面】
     @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Report report = reportService.getReport(id);
@@ -133,14 +134,39 @@ public class ReportController {
         return "reports/update";
     }
 
-    @PostMapping("/update")
-    public String updateReport(@Validated @ModelAttribute Report report, BindingResult bindingResult, Model model) {
-        if (bindingResult.hasErrors()) {
+    @PostMapping("/update/{id}")
+    public String update(@PathVariable("id") Integer id, @Validated Report report, BindingResult res, Model model) {
+        System.out.println("デバッグ: updateメソッドが呼び出されました。ID: " + id);
+
+        if (res.hasErrors()) {
+            System.out.println("デバッグ: バリデーションエラーが発生しました。");
+            model.addAttribute("report", report);
             return "reports/update";
         }
-        reportService.saveReport(report);
+
+        try {
+            // 既存のレポートを取得してから、更新する
+            Report existingReport = reportService.getReport(id);
+            System.out.println("デバッグ: 既存のレポートを取得しました。Report: " + existingReport);
+
+            existingReport.setReportDate(report.getReportDate());
+            existingReport.setTitle(report.getTitle());
+            existingReport.setContent(report.getContent());
+
+            // ここで更新
+            reportService.update(existingReport);
+            System.out.println("デバッグ: レポートを更新しました。");
+        } catch (Exception e) {
+            System.out.println("エラー: 更新に失敗しました。" + e.getMessage());
+            model.addAttribute("error", "更新に失敗しました。");
+            model.addAttribute("report", report);
+            return "reports/update";
+        }
+
         return "redirect:/reports";
     }
+
+
 
 //************************************************************************************************************************************************************
 

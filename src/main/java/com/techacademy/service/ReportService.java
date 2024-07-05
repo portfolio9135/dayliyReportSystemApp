@@ -87,6 +87,11 @@ public class ReportService {
 	    return reportRepository.findById(id).orElse(null);
 	}
 
+    // 追加する update メソッド
+    public void update(Report report) {
+        reportRepository.save(report);
+    }
+
   //************************************************************************************************************************************************************
 
 }
