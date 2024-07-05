@@ -4,6 +4,8 @@ import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +17,7 @@ import com.techacademy.service.EmployeeService;
 import com.techacademy.service.ReportService;
 
 //************************************************************************************************************************************************************
+//【基本設定】
 
 @Controller
 @RequestMapping("reports")
@@ -31,6 +34,7 @@ public class ReportController {
 
     @GetMapping
     public String list(Model model, Principal principal) {
+        System.out.println("デバッグ: 一覧画面表示");
         // ログインユーザーのユーザー名を取得
         String username = principal.getName();
 
@@ -39,7 +43,7 @@ public class ReportController {
         if (reportService.isAdmin(username)) {
             model.addAttribute("reportList", reportService.getAllReports());
             model.addAttribute("listSize", reportService.getAllReports().size()); // ここで全リストのサイズを設定
-          //そうじゃなかったら一般ユーザなので、そのユーザーの日報と日報数を取得
+            //そうじゃなかったら一般ユーザなので、そのユーザーの日報と日報数を取得
         } else {
             model.addAttribute("reportList", reportService.getReportsByUsername(username));
             model.addAttribute("listSize", reportService.getReportsByUsername(username).size()); // ここでユーザーのリストのサイズを設定
@@ -54,36 +58,43 @@ public class ReportController {
 
     @GetMapping("/add")
     public String create(Model model, Principal principal) {
-        model.addAttribute("report", new Report());
+        Report report = new Report();
+        report.setEmployeeCode(principal.getName()); // ログインユーザーの社員番号を設定
+        report.setDeleteFlg(false); // 削除フラグをfalseに設定
+        model.addAttribute("report", report);
+
         // ログインユーザー名を取得してモデルに追加
         String username = principal.getName();
         Employee loggedInUser = employeeService.getEmployeeByCode(username);
         model.addAttribute("loggedInUserName", loggedInUser.getName());
+
         return "reports/new";
     }
 
     @PostMapping("/add")
-    public String create(@ModelAttribute Report report, Principal principal) {
-        // ログインしているユーザーの社員番号を取得
+    public String create(@ModelAttribute("report") @Validated Report report, BindingResult result, Principal principal, Model model) {
+        if (result.hasErrors()) {
+            System.out.println("デバッグ: バリデーションエラーが発生しました");
+            result.getFieldErrors().forEach(error -> {
+                System.out.println("エラー: " + error.getField() + " - " + error.getDefaultMessage());
+            });
+            String username = principal.getName();
+            Employee loggedInUser = employeeService.getEmployeeByCode(username);
+            model.addAttribute("loggedInUserName", loggedInUser.getName());
+            return "reports/new";
+        }
+
         String employeeCode = principal.getName();
-
-        // 社員番号を日報にセット
         report.setEmployeeCode(employeeCode);
-
-        // 日報を登録
+        System.out.println("デバッグ: 日報を保存します");
         reportService.saveReport(report);
-
-        // 一覧画面にリダイレクト
+        System.out.println("デバッグ: リダイレクトします");
         return "redirect:/reports";
     }
 
 
+}
 
 //************************************************************************************************************************************************************
 
 
-
-
-
-
-}

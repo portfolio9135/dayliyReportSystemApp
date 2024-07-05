@@ -3,11 +3,9 @@ package com.techacademy.entity;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
-
 import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.validator.constraints.Length;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -15,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Data
@@ -31,16 +30,19 @@ public class Report {
 
     // 日付
     @Column(nullable = false)
+    @NotNull(message = "値を入力してください")
     private LocalDate reportDate;
 
     // タイトル
     @Column(length = 100, nullable = false)
-    @NotEmpty
-    @Length(max = 100)
+    @NotEmpty(message = "値を入力してください")
+    @Length(max = 100, message = "タイトルは100文字以内で入力してください")
     private String title;
 
     // 内容
     @Column(columnDefinition = "LONGTEXT", nullable = false)
+    @NotEmpty(message = "値を入力してください")
+    @Length(max = 600, message = "内容は600文字以下で入力してください")
     private String content;
 
     // 社員番号

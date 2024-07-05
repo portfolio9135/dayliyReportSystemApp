@@ -14,44 +14,45 @@
             <div class="container-fluid p-0">
                 <h1 class="h3 mb-3">日報 新規登録</h1>
             </div>
-            <div class="col-12 col-xxl-6">
 
+            <div class="col-12 col-xxl-6">
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-body">
-                            <form th:action="@{/reports/add}" th:object="${report}" th:method="post">
+                            <form th:action="@{/reports/add}" th:object="${report}" method="post">
                                 <div class="wizard wizard-success mb-4">
+                                    <!-- 日付フィールド -->
                                     <div class="mb-3">
                                         <label class="form-label" for="reportDate">日付</label>
-                                        <p class="mb-1"></p>
                                         <div class="col-md-7">
-                                            <input class="form-control" type="date" th:field="*{reportDate}" th:errorclass="err" id="reportDate">
-                                            <span th:errors="*{reportDate}" class="text-danger"></span>
+                                            <input class="form-control" type="date" th:field="*{reportDate}" id="reportDate">
+                                            <span th:if="${#fields.hasErrors('reportDate')}" th:errors="*{reportDate}" class="text-danger"></span>
                                         </div>
                                     </div>
-									<div class="mb-3">
-									    <label class="form-label" for="title">氏名</label>
-									    <p class="mb-1"></p>
-									    <div class="col-md-7">
-									        <p th:text="${loggedInUserName}" class="form-control-static"></p>
-									    </div>
-									</div>
+
+                                    <!-- タイトルフィールド -->
                                     <div class="mb-3">
                                         <label class="form-label" for="title">タイトル</label>
-                                        <p class="mb-1"></p>
                                         <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{title}" th:errorclass="err" id="title">
-                                            <span th:errors="*{title}" class="text-danger"></span>
+                                            <input class="form-control" type="text" th:field="*{title}" id="title">
+                                            <span th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="text-danger"></span>
                                         </div>
                                     </div>
+
+                                    <!-- 内容フィールド -->
                                     <div class="mb-3">
                                         <label class="form-label" for="content">内容</label>
-                                        <p class="mb-1"></p>
                                         <div class="col-md-7">
-                                            <textarea class="form-control" th:field="*{content}" th:errorclass="err" id="content"></textarea>
-                                            <span th:errors="*{content}" class="text-danger"></span>
+                                            <textarea class="form-control" th:field="*{content}" id="content"></textarea>
+                                            <span th:if="${#fields.hasErrors('content')}" th:errors="*{content}" class="text-danger"></span>
                                         </div>
                                     </div>
+
+                                    <!-- 社員番号フィールド（隠しフィールド） -->
+                                    <input type="hidden" th:field="*{employeeCode}">
+
+                                    <!-- 削除フラグ（隠しフィールド） -->
+                                    <input type="hidden" th:field="*{deleteFlg}" th:value="false">
                                 </div>
                                 <p class="mt-5">
                                     <input type="submit" value="登録" class="btn btn-primary">

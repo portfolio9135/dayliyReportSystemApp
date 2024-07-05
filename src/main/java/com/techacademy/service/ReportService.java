@@ -11,7 +11,7 @@ import com.techacademy.repository.ReportRepository;
 import com.techacademy.repository.EmployeeRepository;
 
 //************************************************************************************************************************************************************
-//【基本設定】
+//【基本的なメソッド】
 
 @Service
 public class ReportService {
@@ -22,13 +22,13 @@ public class ReportService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-//************************************************************************************************************************************************************
-//【一覧画面に関するメソッド】
-
     public boolean isAdmin(String username) {
         Employee employee = employeeRepository.findByCode(username);
         return employee != null && employee.getRole() == Employee.Role.ADMIN;
     }
+
+  //************************************************************************************************************************************************************
+  //【一覧表示に関するメソッド】
 
     public List<Report> getAllReports() {
         return reportRepository.findAllByOrderByReportDateDesc();
@@ -42,15 +42,11 @@ public class ReportService {
         return reportRepository.findAll().size();
     }
 
-//************************************************************************************************************************************************************
-//【新規登録に関するメソッド】
+  //************************************************************************************************************************************************************
+  //【新規登録に関するメソッド】
 
     public void saveReport(Report report) {
+        System.out.println("デバッグ: 日報をデータベースに保存します");
         reportRepository.save(report);
     }
-
-//************************************************************************************************************************************************************
-
-
-
 }
