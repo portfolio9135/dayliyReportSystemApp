@@ -1,5 +1,6 @@
 package com.techacademy.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,5 +49,10 @@ public class ReportService {
     public void saveReport(Report report) {
         System.out.println("デバッグ: 日報をデータベースに保存します");
         reportRepository.save(report);
+    }
+
+    public boolean isReportDateDuplicate(String employeeCode, LocalDate reportDate) {
+        List<Report> reports = reportRepository.findByEmployeeCodeAndReportDate(employeeCode, reportDate);
+        return !reports.isEmpty();
     }
 }

@@ -73,18 +73,22 @@ public class ReportController {
 
     @PostMapping("/add")
     public String create(@ModelAttribute("report") @Validated Report report, BindingResult result, Principal principal, Model model) {
+        String employeeCode = principal.getName();
+
+        if (reportService.isReportDateDuplicate(employeeCode, report.getReportDate())) {
+            result.rejectValue("reportDate", "error.report", "既に登録されている日付です");
+        }
+
         if (result.hasErrors()) {
             System.out.println("デバッグ: バリデーションエラーが発生しました");
             result.getFieldErrors().forEach(error -> {
                 System.out.println("エラー: " + error.getField() + " - " + error.getDefaultMessage());
             });
-            String username = principal.getName();
-            Employee loggedInUser = employeeService.getEmployeeByCode(username);
+            Employee loggedInUser = employeeService.getEmployeeByCode(employeeCode);
             model.addAttribute("loggedInUserName", loggedInUser.getName());
             return "reports/new";
         }
 
-        String employeeCode = principal.getName();
         report.setEmployeeCode(employeeCode);
         System.out.println("デバッグ: 日報を保存します");
         reportService.saveReport(report);
@@ -92,9 +96,6 @@ public class ReportController {
         return "redirect:/reports";
     }
 
-
-}
-
 //************************************************************************************************************************************************************
 
-
+}
