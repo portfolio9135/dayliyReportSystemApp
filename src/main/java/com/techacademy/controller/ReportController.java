@@ -112,6 +112,16 @@ public class ReportController {
         return "reports/detail";
     }
 
+    @PostMapping("/{id}/delete")
+    public String delete(@PathVariable("id") Integer id, Model model) {
+        try {
+            reportService.deleteReportById(id);
+            return "redirect:/reports";
+        } catch (Exception e) {
+            model.addAttribute("deleteError", "削除に失敗しました");
+            return "reports/detail";
+        }
+    }
 
 
 

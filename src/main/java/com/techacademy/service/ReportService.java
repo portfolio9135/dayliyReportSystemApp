@@ -2,6 +2,7 @@ package com.techacademy.service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,6 +10,9 @@ import org.springframework.stereotype.Service;
 import com.techacademy.entity.Employee;
 import com.techacademy.entity.Report;
 import com.techacademy.repository.ReportRepository;
+
+import jakarta.transaction.Transactional;
+
 import com.techacademy.repository.EmployeeRepository;
 
 //************************************************************************************************************************************************************
@@ -61,6 +65,18 @@ public class ReportService {
 
     public Report getReportById(Integer id) {
         return reportRepository.findById(id).orElse(null);
+    }
+
+    @Transactional
+    public void deleteReportById(Integer id) {
+        Optional<Report> report = reportRepository.findById(id);
+        if (report.isPresent()) {
+            Report r = report.get();
+            r.setDeleteFlg(true);  // 論理削除フラグを立てる
+            reportRepository.save(r);
+        } else {
+            throw new RuntimeException("レポートが見つかりませんでした");
+        }
     }
 
 //************************************************************************************************************************************************************
