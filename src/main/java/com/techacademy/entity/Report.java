@@ -38,12 +38,13 @@ public class Report {
     // タイトル
     @Column(length = 100, nullable = false)
     @NotEmpty(message = "値を入力してください")
-    @Length(max = 100, message = "タイトルは100文字以内で入力してください")
+    @Length(max = 100, message = "100文字以下で入力してください")
     private String title;
 
     // 内容
     @Column(columnDefinition = "LONGTEXT", nullable = false)
     @NotEmpty(message = "値を入力してください")
+    @Length(max = 600, message = "600文字以下で入力してください")
     private String content;
 
     // 社員番号
