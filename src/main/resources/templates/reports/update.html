@@ -30,14 +30,13 @@
                                         </div>
                                     </div>
 
-                                    <!-- 氏名フィールド -->
-                                    <div class="mb-3">
-                                        <label class="form-label" for="name">氏名</label>
-                                        <div class="col-md-7">
-                                            <input class="form-control" type="text" th:field="*{employee.name}" th:errorclass="err" id="name" readonly>
-                                            <span th:errors="*{employee.name}" class="text-danger"></span>
-                                        </div>
-                                    </div>
+									<!-- 氏名フィールド -->
+									<div class="mb-3">
+									    <label class="form-label" for="name">氏名</label>
+									    <div class="col-md-7">
+									        <div class="form-control-plaintext" th:text="${reportAuthorName}"></div>
+									    </div>
+									</div>
 
                                     <!-- タイトルフィールド -->
                                     <div class="mb-3">

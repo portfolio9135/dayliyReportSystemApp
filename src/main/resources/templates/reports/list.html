@@ -20,17 +20,17 @@
                                 <table class="table table-striped w-100">
                                     <thead>
                                         <tr>
-                                            <th>社員番号</th>
+                                            <th>氏名</th>
                                             <th>日付</th>
                                             <th>タイトル</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr th:each="report : ${reportList}">
-                                            <td class="align-middle" th:text="${report.employeeCode}"></td>
+                                            <td class="align-middle" th:text="${report.employee.name}"></td>
                                             <td class="align-middle" th:text="${report.reportDate}"></td>
                                             <td class="align-middle" th:text="${report.title}"></td>
-											<td class="align-middle"><a th:href="@{/reports/detail/{id}(id=${report.id})}" class="btn btn-primary">詳細</a></td>
+                                            <td class="align-middle"><a th:href="@{/reports/detail/{id}(id=${report.id})}" class="btn btn-primary">詳細</a></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -48,4 +48,3 @@
 </body>
 
 </html>
-

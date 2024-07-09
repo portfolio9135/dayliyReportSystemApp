@@ -2,6 +2,7 @@ package com.techacademy.controller;
 
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,9 @@ public class ReportController {
         // ログインユーザーのユーザー名を取得
         String username = principal.getName();
 
+        List<Report> reports;
+
+
         // ログインユーザーが管理者かどうかを判断して、リストと、リストサイズを取得する
         //もしも管理者だったら全ての日報と日報数を取得
         if (reportService.isAdmin(username)) {
@@ -51,6 +55,20 @@ public class ReportController {
         } else {
             model.addAttribute("reportList", reportService.getReportsByUsername(username));
             model.addAttribute("listSize", reportService.getReportsByUsername(username).size()); // ここでユーザーのリストのサイズを設定
+        }
+
+
+        // ログインユーザーが管理者かどうかを判断して、リストと、リストサイズを取得する
+        if (reportService.isAdmin(username)) {
+            reports = reportService.getAllReports();
+        } else {
+            reports = reportService.getReportsByUsername(username);
+        }
+
+        // レポートリストに対して社員名をセットする
+        for (Report report : reports) {
+            Employee employee = employeeService.getEmployeeByCode(report.getEmployeeCode());
+            report.setEmployee(employee);
         }
 
         //reportsディレクトリのlist.htmlを返却
@@ -133,9 +151,16 @@ public class ReportController {
         Report report = reportService.getReport(id);
         System.out.println("デバッグ: 取得したレポートの日付: " + report.getReportDate());
         model.addAttribute("report", report);
+
+        // 日報を書いた人の氏名を取得してモデルに追加
+        Employee reportAuthor = report.getEmployee();
+        String reportAuthorName = reportAuthor != null ? reportAuthor.getName() : "不明";
+        model.addAttribute("reportAuthorName", reportAuthorName);
+
         // フォーマット済みの日付をモデルに追加
         String formattedDate = report.getReportDate().toString();
         model.addAttribute("formattedDate", formattedDate);
+
         return "reports/update";
     }
 
