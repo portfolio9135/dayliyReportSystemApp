@@ -1,6 +1,7 @@
 package com.techacademy.controller;
 
 import java.security.Principal;
+import java.time.LocalDate;
 
 import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,17 +127,22 @@ public class ReportController {
     }
 
 //************************************************************************************************************************************************************
- // 【日報更新画面】
+    //【日報更新画面】
     @GetMapping("/update/{id}")
     public String showUpdateForm(@PathVariable("id") Integer id, Model model) {
         Report report = reportService.getReport(id);
+        System.out.println("デバッグ: 取得したレポートの日付: " + report.getReportDate());
         model.addAttribute("report", report);
+        // フォーマット済みの日付をモデルに追加
+        String formattedDate = report.getReportDate().toString();
+        model.addAttribute("formattedDate", formattedDate);
         return "reports/update";
     }
 
     @PostMapping("/update/{id}")
     public String update(@PathVariable("id") Integer id, @Validated Report report, BindingResult res, Model model) {
         System.out.println("デバッグ: updateメソッドが呼び出されました。ID: " + id);
+        System.out.println("デバッグ: 更新するレポートの日付: " + report.getReportDate());
 
         if (res.hasErrors()) {
             System.out.println("デバッグ: バリデーションエラーが発生しました。");
@@ -165,6 +171,7 @@ public class ReportController {
 
         return "redirect:/reports";
     }
+
 
 
 
